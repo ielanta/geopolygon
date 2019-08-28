@@ -1,3 +1,7 @@
+import logging
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
@@ -27,22 +31,27 @@ class ServiceAreaDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ServiceAreaPoint(APIView):
+    @method_decorator(cache_page(60 * 60))
     def get(self, request):
         """
         API take a lat/lng pair as arguments and Return a list of data(service name, provider name and price)
         for all services that include the given lat/lng.
         Parameters
-            :param lat: float
+            lat: float
                 point latitude
-            :param lng: float
+            lng: float
                 point longitude
         Returns
             [(service name, provider name, service price)]
         """
-        if not request.query_params.get('lng') or request.query_params.get('lat'):
+        lng = request.query_params.get('lng')
+        lat = request.query_params.get('lat')
+        logging.info(f'Find service areas for point lng={lng} and lat={lat}')
+        if not lng or not lat:
+            logging.error('lng or lat missed')
             raise ValidationError('Please provide lng and lat params')
         # TODO: validate lng/lat float
-        point = Point(float(request.query_params['lng']), float(request.query_params['lat']))  # create point
+        point = Point(float(lng), float(lat))  # create point
         result = []
         for service in ServiceArea.objects.all():
             polygon = Polygon(service.geo_polygon['points'])  # create polygon
