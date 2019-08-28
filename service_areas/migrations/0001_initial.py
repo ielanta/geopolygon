@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('geo_polygon', django.contrib.postgres.fields.jsonb.JSONField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('provider', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='providers.Provider')),
+                ('service', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='providers.Provider')),
             ],
             options={
                 'ordering': ['name'],
