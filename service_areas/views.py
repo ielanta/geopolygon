@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -28,8 +29,19 @@ class ServiceAreaDetail(generics.RetrieveUpdateDestroyAPIView):
 class ServiceAreaPoint(APIView):
     def get(self, request):
         """
-        Return a list of all users.
+        API take a lat/lng pair as arguments and Return a list of data(service name, provider name and price)
+        for all services that include the given lat/lng.
+        Parameters
+            :param lat: float
+                point latitude
+            :param lng: float
+                point longitude
+        Returns
+            [(service name, provider name, service price)]
         """
+        if not request.query_params.get('lng') or request.query_params.get('lat'):
+            raise ValidationError('Please provide lng and lat params')
+        # TODO: validate lng/lat float
         point = Point(float(request.query_params['lng']), float(request.query_params['lat']))  # create point
         result = []
         for service in ServiceArea.objects.all():
